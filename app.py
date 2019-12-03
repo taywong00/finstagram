@@ -125,10 +125,13 @@ def profile():
 
 
 
-@app.route('/logout', methods=['GET', 'POST'])
+@app.route("/logout",methods=['POST','GET'])
 def logout():
-    session.pop('username')
-    return redirect("/")
+    if 'username' in session:
+        session.pop('username')
+        return render_template('index.html', message = 'Logout was successful.')
+    else:
+        return redirect("/")
 
 if __name__ == "__main__":
     app.debug = True

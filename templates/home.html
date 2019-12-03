@@ -27,7 +27,24 @@ Home
           <b>{{line.photoPoster}}</b>
           {{line.caption}}
         </p>
-        <text style="color: grey;">{{line.postingdate}}</text>
+
+        <div class="row">
+          <div class="col">
+            <text style="color: grey;">{{line.postingdate}}</text>
+          </div>
+          <div class="col" align="right">
+            <button class="btn btn-light btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+              Details
+            </button>
+          </div>
+        </div>
+        <div class="collapse" id="collapseExample">
+          <div class="card card-body">
+            ID: {{line.photoID}}
+          </div>
+        </div>
+
+
         <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
       </div>
     </div>

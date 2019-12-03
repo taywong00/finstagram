@@ -16,11 +16,15 @@ Login
 {% endblock %}
 
 {% block content %}
-{% if error %}
-  <div class="alert alert-warning" role="alert">
-  Error: {{error}}
-  </div>
-{% endif %}
+<center>
+  {% if error %}
+  <div class="alert alert-warning" role="alert">Error: {{error}}</div>
+  {% endif %}
+
+  {% if message %}
+  <div class="alert alert-success" role="alert">{{message}}</div>
+  {% endif %}
+</center>
 
 <div id="formContainer" class="container">
   <div class="row justify-content-center">
