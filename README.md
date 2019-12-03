@@ -1,5 +1,4 @@
 # finstagram
-### Taylor Wong
 ### Introduction to Databases Fall 2019
 
 ##### app.py is the main web application.
