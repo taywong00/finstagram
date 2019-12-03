@@ -1,0 +1,11 @@
+//Query to find photoIDs of photos that are visible to the user whose username is
+TestUser
+SELECT photoID FROM Photo WHERE
+	(allFollowers = 1 AND photoPoster IN (
+        SELECT username_followed FROM Follow WHERE username_follower = "TestUser")
+    )
+	OR
+	(allFollowers = 0 AND photoID IN (
+        SELECT photoID FROM SharedWith NATURAL JOIN BelongTo WHERE member_username = "TestUser"
+    )
+   )

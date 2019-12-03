@@ -1,139 +1,135 @@
-from flask import Flask, render_template, request, session, redirect, url_for, send_file
-import os
-import uuid
-import hashlib
+import json, os #requests #url_for, urllib2
+from flask import Flask, render_template, request, session, redirect, url_for, flash, send_file
+# from util import translate, feed_help, datamuse
 import pymysql.cursors
-from functools import wraps
-import time
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
-IMAGES_DIR = os.path.join(os.getcwd(), "images")
+app.secret_key = os.urandom(32)
 
 connection = pymysql.connect(host="localhost",
                              user="root",
-                             password="",
-                             db="finsta",
+                             password="root",
+                             db="Finstagram",
                              charset="utf8mb4",
-                             port=3306,
+                             port=8889,
                              cursorclass=pymysql.cursors.DictCursor,
                              autocommit=True)
 
-def login_required(f):
-    @wraps(f)
-    def dec(*args, **kwargs):
-        if not "username" in session:
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return dec
-
 @app.route("/")
-def index():
-    if "username" in session:
-        return redirect(url_for("home"))
-    return render_template("index.html")
+def welcome():
+    if session.get('username'): # User logged in
+        return redirect("/home") # redirect to hompage
+    else: # User not logged in
+        return render_template("index.html") # present form
 
-@app.route("/home")
-@login_required
-def home():
-    return render_template("home.html", username=session["username"])
-
-@app.route("/upload", methods=["GET"])
-@login_required
-def upload():
-    return render_template("upload.html")
-
-@app.route("/images", methods=["GET"])
-@login_required
-def images():
-    query = "SELECT * FROM photo"
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-    data = cursor.fetchall()
-    return render_template("images.html", images=data)
-
-@app.route("/image/<image_name>", methods=["GET"])
-def image(image_name):
-    image_location = os.path.join(IMAGES_DIR, image_name)
-    if os.path.isfile(image_location):
-        return send_file(image_location, mimetype="image/jpg")
-
-@app.route("/login", methods=["GET"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    if session.get('username'): # User logged in
+        return redirect('/home') # redirect to hompage
 
-@app.route("/register", methods=["GET"])
-def register():
-    return render_template("register.html")
+    # User entered the login form
+    elif request.form.get("login") == "Login":
+        # get form info
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-@app.route("/loginAuth", methods=["POST"])
-def loginAuth():
-    if request.form:
-        requestData = request.form
-        username = requestData["username"]
-        plaintextPasword = requestData["password"]
-        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
-
-        with connection.cursor() as cursor:
-            query = "SELECT * FROM person WHERE username = %s AND password = %s"
-            cursor.execute(query, (username, hashedPassword))
+        # cursor used to execute queries
+        cursor = connection.cursor()
+        # execute query: look up credentials in database
+        query = "SELECT * FROM Person WHERE username = %s AND password = %s"
+        cursor.execute(query, (username, password))
+        # store result of query in variable (if more than one row, use fetchall())
         data = cursor.fetchone()
-        if data:
+        cursor.close() # close cursor when done
+
+        if (data): # user exists/credentials correct
+            # create session for the user
             session["username"] = username
-            return redirect(url_for("home"))
+            return redirect("/home")
+        else: # user does not exist/credentials incorrect
+            error = "Invalid login." # *** MAY WANT TO SPECIFY LOGIN ISSUE, ex username vs pass problem ***
+            return render_template("index.html", error=error)
 
-        error = "Incorrect username or password."
-        return render_template("login.html", error=error)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if session.get('username'): # User logged in
+        return redirect('/home') # redirect to hompage
 
-    error = "An unknown error has occurred. Please try again."
-    return render_template("login.html", error=error)
+    # User entered the sign up form
+    elif request.form.get("register") == "Register":
+        # get form info
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-@app.route("/registerAuth", methods=["POST"])
-def registerAuth():
-    if request.form:
-        requestData = request.form
-        username = requestData["username"]
-        plaintextPasword = requestData["password"]
-        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
-        firstName = requestData["fname"]
-        lastName = requestData["lname"]
+        # cursor used to execute queries
+        cursor = connection.cursor()
+        # execute query: look up username in database
+        query = "SELECT * FROM Person WHERE username = %s"
+        cursor.execute(query, (username))
+        # store result of query in variable (if more than one row, use fetchall())
+        data = cursor.fetchone()
 
-        try:
-            with connection.cursor() as cursor:
-                query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
-                cursor.execute(query, (username, hashedPassword, firstName, lastName))
-        except pymysql.err.IntegrityError:
-            error = "%s is already taken." % (username)
-            return render_template('register.html', error=error)
+        if (data): # User found in database, exists already
+            error = "That username is taken."
+            cursor.close() # close cursor when done
+            return render_template("register.html", error=error)
+        else: # User doesn't exist yet, account can be created
+            insert_query = "INSERT INTO Person (username, password) VALUES(%s, %s)"
+            cursor.execute(insert_query, (username, password))
+            # commit changes for insert to go through
+            connection.commit()
+            cursor.close() # close cursor when done
+            return redirect("/login")
 
-        return redirect(url_for("login"))
 
-    error = "An error has occurred. Please try again."
-    return render_template("register.html", error=error)
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
 
-@app.route("/logout", methods=["GET"])
+    # cursor used to execute queries
+    cursor = connection.cursor()
+    query = '''
+        SELECT * FROM Photo WHERE
+    	(allFollowers = 1 AND photoPoster IN
+            (SELECT username_followed FROM Follow WHERE username_follower = "TestUser"))
+    	OR
+    	(allFollowers = 0 AND photoID IN
+            (SELECT photoID FROM SharedWith NATURAL JOIN BelongTo WHERE member_username = "TestUser"))
+        ORDER BY postingdate DESC
+    '''
+    cursor.execute(query)
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchall()
+    cursor.close() # close cursor when done
+
+    return render_template("home.html", data = data)
+
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+    cursor.close() # close cursor when done
+
+    return render_template("profile.html", data = data)
+
+
+
+
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    session.pop("username")
+    session.pop('username')
     return redirect("/")
 
-@app.route("/uploadImage", methods=["POST"])
-@login_required
-def upload_image():
-    if request.files:
-        image_file = request.files.get("imageToUpload", "")
-        image_name = image_file.filename
-        filepath = os.path.join(IMAGES_DIR, image_name)
-        image_file.save(filepath)
-        query = "INSERT INTO photo (timestamp, filePath) VALUES (%s, %s)"
-        with connection.cursor() as cursor:
-            cursor.execute(query, (time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
-        message = "Image has been successfully uploaded."
-        return render_template("upload.html", message=message)
-    else:
-        message = "Failed to upload image."
-        return render_template("upload.html", message=message)
-
 if __name__ == "__main__":
-    if not os.path.isdir("images"):
-        os.mkdir(IMAGES_DIR)
+    app.debug = True
     app.run()

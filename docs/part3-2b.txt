@@ -1,0 +1,5 @@
+Extra Features:
+1) Like Photo
+  - implemented possibly as a dropdown menu of sorts
+2) Add Comments
+  - implemented as a form inside each post

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#formContainer {
+  padding-top: 10%;
+  border:
+}
+</style>
+
+{% endblock %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+<center>
+  {% if error %}
+    <div class="alert alert-warning" role="alert">
+    Error: {{error}}
+    </div>
+  {% endif %}
+
+  <div id="formContainer" class="container">
+    <div class="row justify-content-center">
+      <form class="form-signin" action='/register' method="POST">
+        <center><h1 class="h3 mb-3 font-weight-normal">Sign Up</h1></center>
+        <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
+        <input type="password" class="form-control" placeholder="Password" name="password" required>
+        <br>
+        <center><button class="btn btn-lg btn-primary btn-block" type="submit" value="Register" name="register">Sign Up</button></center>
+        <br>
+        <small> Have an account? <a href="/login">Log in here.</a></small>
+      </form>
+    </div>
+  </div>
+<center>
+{% endblock %}

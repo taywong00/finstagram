@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#homeContent {
+  padding: 5%;
+}
+</style>
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="container" id="homeContent" align="center">
+    {% for line in data %}
+    <div class="card w-50 shadow-sm" style="width: 18rem;">
+      <div class="card-body" align="left">
+        <h5 class="card-title">{{line.photoPoster}}</h5>
+      </div>
+      <img src={{line.filepath}} class="card-img-top">
+      <div class="card-body" align="left">
+        <p class="card-text">
+          <b>{{line.photoPoster}}</b>
+          {{line.caption}}
+        </p>
+        <text style="color: grey;">{{line.postingdate}}</text>
+        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+      </div>
+    </div>
+    <br>
+    {% endfor %}
+</div>
+
+{% endblock %}

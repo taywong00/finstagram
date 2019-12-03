@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#profile {
+  padding-left: 20%;
+  padding-right: 20%;
+  padding-top: 5%;
+  padding-bottom: 5%
+}
+</style>
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="container" id="profile">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{{data.username}}</h1>
+      </div>
+      <div class="col" align="right">
+        <button type="button" class="btn btn-dark" href="/logout">Logout</button>
+      </div>
+    </div>
+  </div>
+  <hr>
+</div>
+
+
+{% endblock %}
