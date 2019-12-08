@@ -1,0 +1,84 @@
+{% extends "profile.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#profile {
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 5%;
+  padding-bottom: 5%
+}
+
+#createtab {
+  text-decoration: underline;
+}
+</style>
+
+<!-- Interactive for Follower Selection -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+</script>
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block subcontent %}
+<div class="container">
+
+  <div class="row" >
+    <div class="col-md order-md-1" align="center" style="text-align: left;">
+      <h4 class="mb-3">Create Post</h4>
+      <form class="needs-validation" action='/submitPost' method="POST" novalidate>
+
+        <div class="mb-3">
+          <label for="filepath">Filepath to Photo</label>
+          <input type="text" class="form-control" id="address" placeholder="Ex: ../static/photo_library/photo.jpg" name="filepath_input" required>
+          <div class="invalid-feedback">
+            Please enter the filepath to the desired photo.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="caption">Caption</label>
+          <input type="text" class="form-control" id="caption" name="caption_input" required>
+          <div class="invalid-feedback">
+            Please enter your caption.
+          </div>
+        </div>
+
+        <hr class="mt-4 mb-4">
+
+        <div class="row">
+          <div class="col-md-5 mb-3">
+            <label for="country">Who can view this post?</label>
+            <select class="custom-select d-block w-100" name = "allFollowers_input" required>
+              <option value = "1">All Followers</option>
+              <option value = "0">Only Select Friend Groups</option>
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid option.
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <small class="text-muted">Friend Groups this post will be shared with:</small>
+          {% for friendgroup in friendgroups %}
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" id="id_{{friendgroup.groupName}}_{{friendgroup.owner_username}}" name="selected_friendgroups" value="{{friendgroup.groupName}},{{friendgroup.owner_username}}">
+            <label for="id_{{friendgroup.groupName}}_{{friendgroup.owner_username}}"><b>{{friendgroup.groupName}}</b> (@{{friendgroup.owner_username}})</label>
+            {{friendgroup}}
+          </div>
+          {% endfor %}
+        </div>
+
+        <hr class="mb-4">
+        <button class="btn btn-outline-dark btn-lg btn-block" type="submit">Post!</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

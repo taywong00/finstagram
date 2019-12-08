@@ -2,6 +2,7 @@ import json, os #requests #url_for, urllib2
 from flask import Flask, render_template, request, session, redirect, url_for, flash, send_file
 # from util import translate, feed_help, datamuse
 import pymysql.cursors
+import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
@@ -116,18 +117,17 @@ def details():
         return redirect('/') # redirect to hompage
 
     photoID = request.form.get("photoID")
-    postingdate = request.form.get("postingdate")
-    filepath = request.form.get("filepath")
-    allFollowers = request.form.get("allFollowers")
-    caption = request.form.get("caption")
-    username = request.form.get("username")
-    firstName = request.form.get("firstName")
-    lastName = request.form.get("lastName")
-    bio = request.form.get("bio")
-
+    print(photoID)
 
     # cursor used to execute queries
     cursor = connection.cursor()
+
+    # general post data
+    query = '''
+    SELECT * FROM Photo NATURAL JOIN Person WHERE photoID = %s AND username = photoPoster
+    '''
+    cursor.execute(query, (int(photoID)))
+    data = cursor.fetchone()
 
     # likes
     query = "SELECT * FROM Likes WHERE photoID = %s"
@@ -143,31 +143,96 @@ def details():
 
     cursor.close() # close cursor when done
 
-    return render_template("details.html", likes = likes, tags = tags,
-    photoID = photoID, postingdate = postingdate, filepath = filepath,
-    allFollowers = allFollowers, caption = caption, username = username,
-    firstName = firstName, lastName = lastName, bio = bio
-    )
+    return render_template("details.html", likes = likes, tags = tags, data = data)
 
 
 
 
 
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
+@app.route('/create', methods=['GET', 'POST'])
+def create():
     if not session.get('username'): # User logged in
         return redirect('/') # redirect to hompage
 
     # cursor used to execute queries
     cursor = connection.cursor()
+
     query = "SELECT * FROM Person WHERE username = %s"
     cursor.execute(query, (session["username"]))
     # store result of query in variable (if more than one row, use fetchall())
     data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # FriendGroups
+    query = "SELECT groupName, owner_username FROM `BelongTo` WHERE member_username = %s"
+    cursor.execute(query, (session["username"]))
+    friendgroups = cursor.fetchall()
+
     cursor.close() # close cursor when done
 
-    return render_template("profile.html", data = data)
+    return render_template("create.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    friendgroups = friendgroups)
 
+
+
+
+@app.route('/submitPost', methods=['GET', 'POST'])
+def submitPost():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    filepath_input = request.form.get("filepath_input")
+    caption_input = request.form.get("caption_input")
+    allFollowers_input = request.form.get("allFollowers_input")
+    selected_friendgroups = request.form.getlist("selected_friendgroups")
+    date_time = datetime.datetime.now()
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+    query = "SELECT max(PhotoID) AS value FROM Photo"
+    cursor.execute(query)
+    curr_photoID = int((cursor.fetchone())["value"]) + 1
+
+    # add photo post to db -- add to Photo table
+    query = '''
+    INSERT INTO Photo(`photoID`, `postingdate`, `filepath`, `allFollowers`, `caption`, `photoPoster`)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    '''
+    cursor.execute(query, (curr_photoID, date_time, filepath_input, int(allFollowers_input), caption_input, session["username"]))
+    connection.commit()
+
+
+    # share with friendgroups -- add to SharedWith table
+    for curr_ind in range(0, len(selected_friendgroups)):
+        curr_groupName = selected_friendgroups[curr_ind].split(",")[0]
+        curr_owner_username = selected_friendgroups[curr_ind].split(",")[1]
+
+        query = '''
+        INSERT INTO `SharedWith`(`groupOwner`, `groupName`, `photoID`)
+        VALUES (%s,%s,%s)
+        '''
+        cursor.execute(query, (curr_owner_username, curr_groupName, curr_photoID))
+        connection.commit()
+
+    cursor.close()
+
+
+    return redirect("/home")
 
 
 

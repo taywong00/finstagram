@@ -21,13 +21,13 @@ Home
 <div class="container" id="homeContent" align="center">
   <div class="card w-50 shadow-sm" style="width: 18rem;">
     <div class="card-body" align="left">
-      <h5 class="card-title">{{username}}</h5>
+      <h5 class="card-title">{{data.username}}</h5>
     </div>
-    <img src={{filepath}} class="card-img-top">
+    <img src={{data.filepath}} class="card-img-top">
     <div class="card-body" align="left">
       <p class="card-text">
-        <b>{{firstName}} {{lastName}}</b>
-        {{caption}}
+        <b>{{data.firstName}} {{data.lastName}}</b>
+        {{data.caption}}
       </p>
 
       <div class="accordion" id="accordionExample">
@@ -81,7 +81,7 @@ Home
       </div>
       <div class="row">
         <div class="col">
-          <text style="color: grey;">{{postingdate}}</text>
+          <small style="color: grey;">{{data.postingdate}}</small>
         </div>
       </div>
     </div>

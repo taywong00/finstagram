@@ -4,8 +4,8 @@
 <!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
 <style>
 #profile {
-  padding-left: 20%;
-  padding-right: 20%;
+  padding-left: 10%;
+  padding-right: 10%;
   padding-top: 5%;
   padding-bottom: 5%
 }
@@ -13,23 +13,56 @@
 
 {% endblock %}
 
-{% block title %}
-Home
-{% endblock %}
 
 {% block content %}
 <div class="container" id="profile">
   <div class="container">
     <div class="row">
-      <div class="col">
-        <h1>{{data.username}}</h1>
+      <div class="col-4" align="center">
+        <img src="../static/icons/profile_icon.jpg" class="rounded-circle" width="140" height="140">
       </div>
-      <div class="col" align="right">
-        <a href="/logout" class="btn btn-dark btn-sm" role="button" aria-pressed="true">Log Out</a>
+      <div class="col" >
+        <div class="row">
+          <div class="col">
+            <h1>{{data.username}}</h1>
+          </div>
+          <div class="col" align="right">
+            <a href="/logout" class="btn btn-dark btn-sm" role="button" aria-pressed="true">Log Out</a>
+          </div>
+        </div>
+        <div class="row" style="padding-top:10px; padding-bottom:10px;">
+          <div class="col">
+            <b>{{postNum}}</b> posts
+          </div>
+          <div class="col">
+            <b>{{followerNum}}</b> followers
+          </div>
+          <div class="col">
+            <b>{{followingNum}}</b> following
+          </div>
+        </div>
+        {{data.bio}}
       </div>
+
     </div>
   </div>
+
+  <br>
   <hr>
+  <div class="nav-scroller py-1 mb-2">
+    <nav class="nav d-flex justify-content-center">
+      <a class="p-2 text-muted" href="/create" id="createtab">Create</a>
+      <a class="p-2 text-muted" href="/myposts" id="posttab">Posts</a>
+      <a class="p-2 text-muted" href="/taggedin" id="taggedtab">Tagged</a>
+    </nav>
+  </div>
+
+  {% block subcontent %}
+  <!-- ENTER CONTENT-->
+    {% endblock %}
+
+
+
 </div>
 
 
