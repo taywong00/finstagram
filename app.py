@@ -90,12 +90,14 @@ def home():
     # cursor used to execute queries
     cursor = connection.cursor()
     query = '''
-        SELECT * FROM Photo WHERE
+        SELECT * FROM Photo NATURAL JOIN Person WHERE photoPoster = username
+        AND (
     	(allFollowers = 1 AND photoPoster IN
             (SELECT username_followed FROM Follow WHERE username_follower = "TestUser"))
     	OR
     	(allFollowers = 0 AND photoID IN
             (SELECT photoID FROM SharedWith NATURAL JOIN BelongTo WHERE member_username = "TestUser"))
+        )
         ORDER BY postingdate DESC
     '''
     cursor.execute(query)
@@ -104,6 +106,50 @@ def home():
     cursor.close() # close cursor when done
 
     return render_template("home.html", data = data)
+
+
+
+
+@app.route('/details', methods=['GET', 'POST'])
+def details():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    photoID = request.form.get("photoID")
+    postingdate = request.form.get("postingdate")
+    filepath = request.form.get("filepath")
+    allFollowers = request.form.get("allFollowers")
+    caption = request.form.get("caption")
+    username = request.form.get("username")
+    firstName = request.form.get("firstName")
+    lastName = request.form.get("lastName")
+    bio = request.form.get("bio")
+
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    # likes
+    query = "SELECT * FROM Likes WHERE photoID = %s"
+    cursor.execute(query, (photoID))
+    # store result of query in variable (if more than one row, use fetchall())
+    likes = cursor.fetchall()
+
+    # tags
+    query = "SELECT * FROM Tagged NATURAL JOIN Person WHERE photoID = %s AND tagstatus = 1"
+    cursor.execute(query, (photoID))
+    # store result of query in variable (if more than one row, use fetchall())
+    tags = cursor.fetchall()
+
+    cursor.close() # close cursor when done
+
+    return render_template("details.html", likes = likes, tags = tags,
+    photoID = photoID, postingdate = postingdate, filepath = filepath,
+    allFollowers = allFollowers, caption = caption, username = username,
+    firstName = firstName, lastName = lastName, bio = bio
+    )
+
+
 
 
 

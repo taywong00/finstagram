@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#homeContent {
+  padding: 5%;
+}
+#accordionHeader {
+  padding: 0.5%;
+}
+</style>
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="container" id="homeContent" align="center">
+  <div class="card w-50 shadow-sm" style="width: 18rem;">
+    <div class="card-body" align="left">
+      <h5 class="card-title">{{username}}</h5>
+    </div>
+    <img src={{filepath}} class="card-img-top">
+    <div class="card-body" align="left">
+      <p class="card-text">
+        <b>{{firstName}} {{lastName}}</b>
+        {{caption}}
+      </p>
+
+      <div class="accordion" id="accordionExample">
+        <div class="card">
+          <div class="card-header" id="accordionHeader">
+            <h2 class="mb-0">
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                Likes
+              </button>
+            </h2>
+          </div>
+          <div id="collapseOne" class="collapse" data-parent="#accordionExample">
+            <div class="card-body">
+              <table class="table-striped">
+                <th>username</th>
+                <th>rating</th>
+                {% for entry in likes %}
+                <tr>
+                  <td>{{entry.username}}</td>
+                  <td>{{entry.rating}}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" id="accordionHeader">
+            <h2 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Tags
+              </button>
+            </h2>
+          </div>
+          <div id="collapseTwo" class="collapse" data-parent="#accordionExample">
+            <div class="card-body">
+              <table class="table-striped">
+                <th>username</th>
+                <th>Name</th>
+                {% for entry in tags %}
+                <tr>
+                  <td>{{entry.username}}</td>
+                  <td>{{entry.firstName}} {{entry.lastName}}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col">
+          <text style="color: grey;">{{postingdate}}</text>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div align="left">
+    <a href="/">< Back</a>
+  </div>
+</div>
+
+{% endblock %}

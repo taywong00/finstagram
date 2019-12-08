@@ -8,6 +8,15 @@
 }
 </style>
 
+<!-- <script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
+</script> -->
+
 {% endblock %}
 
 {% block title %}
@@ -24,7 +33,7 @@ Home
       <img src={{line.filepath}} class="card-img-top">
       <div class="card-body" align="left">
         <p class="card-text">
-          <b>{{line.photoPoster}}</b>
+          <b>{{line.firstName}} {{line.lastName}}</b>
           {{line.caption}}
         </p>
 
@@ -33,17 +42,48 @@ Home
             <text style="color: grey;">{{line.postingdate}}</text>
           </div>
           <div class="col" align="right">
-            <button class="btn btn-light btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <!-- <a class="btn btn-light" href="/details" role="button">
               Details
-            </button>
-          </div>
-        </div>
-        <div class="collapse" id="collapseExample">
-          <div class="card card-body">
-            ID: {{line.photoID}}
-          </div>
-        </div>
+            </a> -->
 
+                <form class="form-signin" action='/details' method="POST">
+                  <input type="hidden" name="photoID" value={{line.photoID}}>
+                  <input type="hidden" name="postingdate" value={{line.postingdate}}>
+                  <input type="hidden" name="filepath" value={{line.filepath}}>
+                  <input type="hidden" name="allFollowers" value={{line.allFollowers}}>
+                  <input type="hidden" name="caption" value={{line.caption}}>
+                  <input type="hidden" name="username" value={{line.username}}>
+                  <input type="hidden" name="firstName" value={{line.firstName}}>
+                  <input type="hidden" name="lastName" value={{line.lastName}}>
+                  <input type="hidden" name="bio" value={{line.bio}}>
+                  <button class="btn btn-light" type="submit" value="details" name="details">Details</button>
+                </form>
+
+          </div>
+        </div>
+        <!-- <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
+          Popover on top
+        </button> -->
+        <!-- <div class="collapse multi-collapse" id="multiCollapseExample1">
+          <div class="card card-body">
+            Posted by {{line.firstName}} {{line.lastName}}
+            <br>
+            ID: {{line.photoID}}
+
+            <div class="accordion" id="accordionExample">
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                View Tags
+              </button>
+
+              <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-header">
+                  Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div> -->
 
         <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
       </div>
