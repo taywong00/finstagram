@@ -67,7 +67,7 @@ Home
           <small class="text-muted">Friend Groups this post will be shared with:</small>
           {% for friendgroup in friendgroups %}
           <div class="custom-control custom-checkbox">
-            <input type="checkbox" id="id_{{friendgroup.groupName}}_{{friendgroup.owner_username}}" name="selected_friendgroups" value="{{friendgroup.groupName}},{{friendgroup.owner_username}}">
+            <input type="checkbox" id="id_{{friendgroup.groupName}}_{{friendgroup.owner_username}}" name="selected_friendgroups" value="{{friendgroup.groupName}}, {{friendgroup.owner_username}}">
             <label for="id_{{friendgroup.groupName}}_{{friendgroup.owner_username}}"><b>{{friendgroup.groupName}}</b> (@{{friendgroup.owner_username}})</label>
             {{friendgroup}}
           </div>

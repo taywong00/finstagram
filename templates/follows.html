@@ -1,0 +1,94 @@
+{% extends "settings.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#profile {
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 5%;
+  padding-bottom: 5%
+}
+
+#followstab {
+  text-decoration: underline;
+}
+
+
+</style>
+
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block subcontent %}
+
+{% if error %}
+<div class="alert alert-warning" role="alert">
+  {{error}}
+</div>
+{% endif %}
+
+{% if message %}
+<div class="alert alert-success" role="alert">
+  {{message}}
+</div>
+{% endif %}
+
+<div class="container">
+
+  <div class="row">
+    <div class="col">
+      <h4 class="mb-3">Follow Users</h4>
+    </div>
+    <div class="col col-lg-auto">
+      <form class="form-inline my-2 my-lg-0" action='/search_user_to_follow' method="POST" novalidate>
+        <input type="text" class="form-control mr-sm-2" placeholder="@username" name="searched_username" required>
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Follow!</button>
+      </form>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row">
+      <div class="col">
+        <h4 class="mb-3">Follow Requests</h4>
+      </div>
+  </div>
+
+
+  <ul class="list-group">
+    {% for req in follow_requests %}
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col">@{{req.username_follower}}</div>
+
+        <div class="col-auto" align="right">
+          <div class="row" align="right">
+            <div class="col-auto" align="right">
+              <form action='/approve_follow_request' method="POST" novalidate>
+                <input type="hidden" class="form-control mr-sm-2" name="user_who_requested_me" value={{req.username_follower}} required>
+                <button class="btn btn-light my-2 my-sm-0" type="submit">Approve</button>
+              </form>
+            </div>
+            <div class="col-auto" align="right">
+              <form action='/delete_follow_request' method="POST" novalidate>
+                <input type="hidden" class="form-control mr-sm-2" name="user_who_requested_me" value={{req.username_follower}} required>
+                <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Remove</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+
+</div>
+
+{% endblock %}

@@ -231,8 +231,337 @@ def submitPost():
 
     cursor.close()
 
-
     return redirect("/home")
+
+
+
+@app.route('/myposts', methods=['GET', 'POST'])
+def myposts():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # load my photos
+    query = '''
+    SELECT photoID, filepath
+    FROM Photo
+    WHERE photoPoster = %s
+    ORDER BY postingdate DESC
+    '''
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    myphotos = cursor.fetchall()
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("myposts.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    myphotos = myphotos)
+
+
+
+
+
+
+@app.route('/taggedin', methods=['GET', 'POST'])
+def taggedin():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # load my photos
+    query = '''
+    SELECT photoID, filepath
+    FROM `Tagged` NATURAL JOIN Photo
+    WHERE username = %s
+    ORDER BY postingdate DESC
+    '''
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    taggedphotos = cursor.fetchall()
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("taggedin.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    taggedphotos = taggedphotos)
+
+
+@app.route('/follows', methods=['GET', 'POST'])
+def follows():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # follow_requests
+    query = '''
+    SELECT username_follower FROM `Follow` WHERE username_followed = %s AND followstatus = 0
+    '''
+    cursor.execute(query, (session["username"]))
+    follow_requests = cursor.fetchall()
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("follows.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    follow_requests = follow_requests)
+
+
+
+
+@app.route('/search_user_to_follow', methods=['GET', 'POST'])
+def search_user_to_follow():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    searched_username = request.form.get("searched_username")
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # follow_requests
+    query = '''
+    SELECT username_follower FROM `Follow` WHERE username_followed = %s AND followstatus = 0
+    '''
+    cursor.execute(query, (session["username"]))
+    follow_requests = cursor.fetchall()
+
+
+    # user entered a searched username
+    if searched_username:
+        #check if user exists in db
+
+        query = "SELECT * FROM Person WHERE username = %s"
+        cursor.execute(query, (searched_username))
+        # store result of query in variable (if more than one row, use fetchall())
+        user_data = cursor.fetchone()
+
+
+        if user_data: # user found/exists
+            try: # try adding a follow request to the database
+                query = '''
+                INSERT INTO `Follow`(`username_followed`, `username_follower`, `followstatus`)
+                VALUES (%s,%s,0)
+                '''
+                cursor.execute(query, (searched_username))
+                # commit changes for insert to go through
+                connection.commit()
+            except: # query could not be executed, entry exists
+                error = "You have already requested to follow this user."
+        else: # user not found/does not exist
+            error = "That user does not exist."
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("follows.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    follow_requests = follow_requests, error = error)
+
+
+
+
+
+@app.route('/approve_follow_request', methods=['GET', 'POST'])
+def approve_follow_request():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    user_who_requested_me = request.form.get("user_who_requested_me")
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+    # update follow table
+    query = '''
+    UPDATE `Follow` SET `followstatus`= 1
+    WHERE `username_followed`=%s AND `username_follower`=%s
+    '''
+    cursor.execute(query, (session["username"], user_who_requested_me))
+    # commit changes for insert to go through
+    connection.commit()
+    message = user_who_requested_me + " approved."
+
+    # follow_requests
+    query = '''
+    SELECT username_follower FROM `Follow` WHERE username_followed = %s AND followstatus = 0
+    '''
+    cursor.execute(query, (session["username"]))
+    follow_requests = cursor.fetchall()
+
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("follows.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    follow_requests = follow_requests, message = message)
+
+
+
+@app.route('/delete_follow_request', methods=['GET', 'POST'])
+def delete_follow_request():
+    if not session.get('username'): # User logged in
+        return redirect('/') # redirect to hompage
+
+    user_who_requested_me = request.form.get("user_who_requested_me")
+
+    # cursor used to execute queries
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM Person WHERE username = %s"
+    cursor.execute(query, (session["username"]))
+    # store result of query in variable (if more than one row, use fetchall())
+    data = cursor.fetchone()
+
+    # update follow table
+    query = '''
+    DELETE FROM `Follow`
+    WHERE username_followed = %s AND username_follower = %s
+    '''
+    cursor.execute(query, (session["username"], user_who_requested_me))
+    # commit changes for insert to go through
+    connection.commit()
+    message = user_who_requested_me + " removed from Follow Requests."
+
+    # follow_requests
+    query = '''
+    SELECT username_follower FROM `Follow` WHERE username_followed = %s AND followstatus = 0
+    '''
+    cursor.execute(query, (session["username"]))
+    follow_requests = cursor.fetchall()
+
+
+    # postNum
+    query = "SELECT COUNT(photoID) AS value FROM Photo WHERE photoPoster = %s"
+    cursor.execute(query, (session["username"]))
+    postNum = cursor.fetchone()
+
+    # followerNum
+    query = "SELECT COUNT(username_follower) AS value FROM `Follow` WHERE username_followed = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followerNum = cursor.fetchone()
+
+    # followingNum
+    query = "SELECT COUNT(username_followed) AS value FROM `Follow` WHERE username_follower = %s AND followstatus = 1"
+    cursor.execute(query, (session["username"]))
+    followingNum = cursor.fetchone()
+
+
+    cursor.close() # close cursor when done
+
+    return render_template("follows.html", data = data,
+    postNum = postNum["value"], followerNum = followerNum["value"], followingNum = followingNum["value"],
+    follow_requests = follow_requests, message = message)
 
 
 
