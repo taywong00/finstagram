@@ -50,7 +50,7 @@ def login():
         else: # user does not exist/credentials incorrect
             error = "Invalid login." # *** MAY WANT TO SPECIFY LOGIN ISSUE, ex username vs pass problem ***
             return render_template("index.html", error=error)
-
+    else: return redirect("/")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -132,10 +132,10 @@ def details():
     try: # got photoID through the details button in home (form)
         photoID = request.form.get("photoID")
         session["photoID"] = photoID
-        print("********** DETAILS FORM VERION: " + photoID)
+        # print("********** DETAILS FORM VERION: " + photoID)
     except: # got photoID from session through approve/decline tag routes
         photoID = session["photoID"]
-        print("********** DETAILS SESSION VERION: " , photoID)
+        # print("********** DETAILS SESSION VERION: " , photoID)
 
 
     # cursor used to execute queries
@@ -364,7 +364,7 @@ def taggedin():
     query = '''
     SELECT photoID, filepath
     FROM `Tagged` NATURAL JOIN Photo
-    WHERE username = %s
+    WHERE username = %s AND tagstatus = 1
     ORDER BY postingdate DESC
     '''
     cursor.execute(query, (session["username"]))
@@ -640,7 +640,7 @@ def tags():
     query = '''
     SELECT *
     FROM `Tagged` NATURAL JOIN Photo
-    WHERE username = %s
+    WHERE username = %s AND tagstatus = 0
     ORDER BY postingdate DESC
     '''
     cursor.execute(query, (session["username"]))
@@ -800,13 +800,8 @@ def tag_suggestion_made():
     cursor = connection.cursor()
 
     # regarding self tag
-    if approved or suggested_username == session["username"]: # used approve/decline buttons
-        if suggested_username == session["username"]: # adding self
-            query = '''
-            INSERT INTO `Tagged`(`username`, `photoID`, `tagstatus`)
-            VALUES (%s,%s,1)
-            '''
-        elif approved == "1": # approved
+    if approved:
+        if approved == "1": # approved
             # set tagstatus to 1
             print("approved")
 
