@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#homeContent {
+  padding: 5%;
+}
+#accordionHeader {
+  padding: 0.5%;
+}
+</style>
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container" id="homeContent" align="center">
+  <div class="row" align="center">
+    <!-- post card box -->
+    <div class="col" align="right">
+      <div class="card shadow-sm">
+        <div class="card-body" align="left">
+          <h5 class="card-title">{{data.username}}</h5>
+        </div>
+        <img src={{data.filepath}} class="card-img-top">
+        <div class="card-body" align="left">
+          <p class="card-text">
+            <b>{{data.firstName}} {{data.lastName}}</b>
+            {{data.caption}}
+          </p>
+
+
+          <div class="row">
+            <div class="col">
+              <small style="color: grey;">{{data.postingdate}}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- post card box -->
+
+
+    <!-- post card box -->
+    <div class="col" align="left">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="mb-3" style="text-align: center">Suggest Tags</h3>
+
+          {% if error %}
+          <div class="alert alert-warning" role="alert">
+            {{error}}
+          </div>
+          {% endif %}
+
+          <br>
+          <form class="form-inline my-2 my-lg-0" action='/tag_suggestion_made' method="POST" novalidate>
+            <input type="text" class="form-control mr-sm-2" placeholder="@username" name="suggested_username" required>
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Suggest</button>
+          </form>
+          <br><br>
+          <h5 class="mb-3">Approved Tags</h5>
+          <table class="table-striped" width="100%">
+            <th>username</th>
+            <th>Name</th>
+            {% for entry in tags %}
+              {% if entry.tagstatus == 1 %}
+              <tr>
+                <td>{{entry.username}}</td>
+                <td>{{entry.firstName}} {{entry.lastName}}</td>
+              </tr>
+              {% endif %}
+            {% endfor %}
+          </table>
+          <br><br>
+          <h5 class="mb-3">Pending Tag Requests</h5>
+          <table class="table-striped" width="100%">
+            <th>username</th>
+            <th>Name</th>
+            {% for entry in tags %}
+              {% if entry.tagstatus == 0 %}
+              <tr>
+                <td>{{entry.username}}</td>
+                <td>{{entry.firstName}} {{entry.lastName}}</td>
+              </tr>
+              {% endif %}
+            {% endfor %}
+          </table>
+
+          <br><br>
+
+          <!-- if user was tagged but not yet approved -->
+          {% for entry in tags %}
+            {% if entry.tagstatus == 0 and entry.username == myusername %}
+            <div class="row" align="right">
+              <div class="col" align="right">
+                <small class="text-muted">You were tagged in this photo. Approve this tag?</small>
+                <br>
+              </div>
+            </div>
+            <div class="row" align="right">
+              <div class="col" align="right">
+                <form action='/tag_suggestion_made' method="POST" novalidate>
+                  <input type="hidden" class="form-control mr-sm-2" name="suggested_username" value={{myusername}} required>
+                  <input type="hidden" class="form-control mr-sm-2" name="approved" value="1" required>
+                  <button class="btn btn-sm btn-light my-2 my-sm-0" type="submit">Approve</button>
+                </form>
+              </div>
+              <div class="col-auto" align="right">
+                <form action='/tag_suggestion_made' method="POST" novalidate>
+                  <input type="hidden" class="form-control mr-sm-2" name="suggested_username" value={{myusername}} required>
+                  <input type="hidden" class="form-control mr-sm-2" name="approved" value="0" required>
+                  <button class="btn btn-sm btn-outline-dark my-2 my-sm-0" type="submit">Decline</button>
+                </form>
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+          <!-- if user was tagged but not yet approved -->
+
+        </div>
+      </div>
+    </div>
+    <!-- post card box -->
+  </div>
+  <br>
+</div>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "settings.html" %}
+
+{% block head%}
+<!-- <link href="../static/css/signin.css" rel="stylesheet"> -->
+<style>
+#profile {
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 5%;
+  padding-bottom: 5%
+}
+
+#tagstab {
+  text-decoration: underline;
+}
+
+#homeContent {
+  padding: 5%;
+}
+
+</style>
+
+
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block subcontent %}
+
+{% if error %}
+<div class="alert alert-warning" role="alert">
+  {{error}}
+</div>
+{% endif %}
+
+{% if message %}
+<div class="alert alert-success" role="alert">
+  {{message}}
+</div>
+{% endif %}
+
+<div class="container">
+
+  <div class="row">
+      <div class="col">
+        <h4 class="mb-3">Tag Requests</h4>
+      </div>
+  </div>
+
+
+  <div class="container" id="homeContent">
+      {% for photo in taggedphotos %}
+      <div class="card w-50 shadow-sm" style="width: 18rem;">
+        <img src={{photo.filepath}} class="card-img-top">
+        <div class="card-body" align="left">
+          <p class="card-text">
+            <b>{{photo.photoPoster}}</b>
+            {{photo.caption}}
+          </p>
+
+          <div class="row">
+            <div class="col">
+              <small style="color: grey;">{{photo.postingdate}}</small>
+            </div>
+            <div class="col" align="right">
+
+                  <form class="form-signin" action='/details' method="POST">
+                    <input type="hidden" name="photoID" value={{photo.photoID}}>
+                    <button class="btn btn-light" type="submit" value="details" name="details">Details</button>
+                  </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      {% endfor %}
+  </div>
+<!--
+  <ul class="list-group">
+    {% for photo in taggedphotos %}
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm square">
+            <img src={{photo.filepath}} class="card-img">
+          </div>
+        </div>
+
+        <div class="card-body" align="left">
+          <p class="card-text">
+            <b>{{photo.photoPoster}}</b>
+            {{photo.caption}}
+          </p>
+
+          <div class="row">
+            <div class="col">
+              <small style="color: grey;">{{photo.postingdate}}</small>
+            </div>
+            <div class="col" align="right">
+
+                  <form class="form-signin" action='/details' method="POST">
+                    <input type="hidden" name="photoID" value={{photo.photoID}}>
+                    <button class="btn btn-light" type="submit" value="details" name="details">Details</button>
+                  </form>
+
+            </div>
+          </div>
+          </div>
+
+        <div class="col-auto" align="right">
+          <div class="row" align="right">
+            <div class="col-auto" align="right">
+              <form action='/approve_follow_request' method="POST" novalidate>
+                <input type="hidden" class="form-control mr-sm-2" name="photoID_of_tagged" value="1" required>
+                <button class="btn btn-light my-2 my-sm-0" type="submit">Approve</button>
+              </form>
+            </div>
+            <div class="col-auto" align="right">
+              <form action='/delete_follow_request' method="POST" novalidate>
+                <input type="hidden" class="form-control mr-sm-2" name="photoID_of_tagged" value="0" required>
+                <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Decline</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="album py-5">
+      <div class="container">
+        <div class="row">
+          {% for photo in taggedphotos %}
+          <div class="col-md-4">
+            <div col="row">
+              <div class="card mb-4 shadow-sm square">
+                <img src={{photo.filepath}} class="card-img">
+              </div>
+            </div>
+            <div col="row" align="center">
+              <form class="form-signin" action='/details' method="POST">
+                <input type="hidden" name="photoID" value={{photo.photoID}}>
+                <button class="btn btn-light" type="submit" value="details" name="details">Details</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div> -->
+
+</div>
+
+{% endblock %}

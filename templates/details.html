@@ -68,12 +68,50 @@ Home
                 <th>username</th>
                 <th>Name</th>
                 {% for entry in tags %}
-                <tr>
-                  <td>{{entry.username}}</td>
-                  <td>{{entry.firstName}} {{entry.lastName}}</td>
-                </tr>
+                  {% if entry.tagstatus == 1 %}
+                  <tr>
+                    <td>{{entry.username}}</td>
+                    <td>{{entry.firstName}} {{entry.lastName}}</td>
+                  </tr>
+                  {% endif %}
                 {% endfor %}
               </table>
+
+              <br>
+
+              <div align="right">
+                <a class="btn btn-sm btn-secondary my-2 my-sm-0" href="/suggestTags">Suggest Tags</a>
+              </div>
+
+              <br>
+
+              <!-- if user was tagged but not yet approved -->
+              {% for entry in tags %}
+                {% if entry.tagstatus == 0 and entry.username == myusername %}
+                <div class="row" align="right">
+                  <div class="col" align="right">
+                    <small class="text-muted">You were tagged in this photo. Approve this tag?</small>
+                    <br>
+                  </div>
+                </div>
+                <div class="row" align="right">
+                  <div class="col" align="right">
+                    <form action='/approve_tag' method="POST" novalidate>
+                      <input type="hidden" class="form-control mr-sm-2" name="photoID" value={{entry.photoID}} required>
+                      <button class="btn btn-sm btn-light my-2 my-sm-0" type="submit">Approve</button>
+                    </form>
+                  </div>
+                  <div class="col-auto" align="right">
+                    <form action='/decline_tag' method="POST" novalidate>
+                      <input type="hidden" class="form-control mr-sm-2" name="photoID" value={{entry.photoID}} required>
+                      <button class="btn btn-sm btn-outline-dark my-2 my-sm-0" type="submit">Decline</button>
+                    </form>
+                  </div>
+                </div>
+                {% endif %}
+              {% endfor %}
+              <!-- if user was tagged but not yet approved -->
+
             </div>
           </div>
         </div>
@@ -87,9 +125,6 @@ Home
     </div>
   </div>
   <br>
-  <div align="left">
-    <a href="/">< Back</a>
-  </div>
 </div>
 
 {% endblock %}
