@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Dec 13, 2019 at 03:15 AM
+-- Generation Time: Dec 13, 2019 at 03:21 AM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.8
 
@@ -225,8 +225,7 @@ CREATE TABLE `Tagged` (
 --
 
 INSERT INTO `Tagged` (`username`, `photoID`, `tagstatus`) VALUES
-('abby', 1, 0),
-('TestUser', 1, 1),
+('TestUser', 1, 0),
 ('TestUser', 2, 1),
 ('TestUser', 6, 1),
 ('TestUser', 7, 0);
