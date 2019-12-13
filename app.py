@@ -3,6 +3,8 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 # from util import translate, feed_help, datamuse
 import pymysql.cursors
 import datetime
+import hashlib
+SALT = "cs3083"
 
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
@@ -32,17 +34,21 @@ def login():
     elif request.form.get("login") == "Login":
         # get form info
         username = request.form.get("username")
-        password = request.form.get("password")
+        password = request.form.get("password") + SALT
+        hashed_password = hashlib.sha256(password.encode("utf-8")).hexdigest()
+        print(username)
+        print(password)
+        print(hashed_password)
 
         # cursor used to execute queries
         cursor = connection.cursor()
         # execute query: look up credentials in database
         query = "SELECT * FROM Person WHERE username = %s AND password = %s"
-        cursor.execute(query, (username, password))
+        cursor.execute(query, (username, hashed_password))
         # store result of query in variable (if more than one row, use fetchall())
         data = cursor.fetchone()
         cursor.close() # close cursor when done
-
+        print(data)
         if (data): # user exists/credentials correct
             # create session for the user
             session["username"] = username
@@ -70,7 +76,8 @@ def process_register():
     elif request.form.get("register") == "Register":
         # get form info
         username = request.form.get("username")
-        password = request.form.get("password")
+        password = request.form.get("password") + SALT
+        hashed_password = hashlib.sha256(password.encode("utf-8")).hexdigest()
 
         # cursor used to execute queries
         cursor = connection.cursor()
@@ -87,7 +94,7 @@ def process_register():
             return render_template("register.html", error=error)
         else: # User doesn't exist yet, account can be created
             insert_query = "INSERT INTO Person (username, password) VALUES(%s, %s)"
-            cursor.execute(insert_query, (username, password))
+            cursor.execute(insert_query, (username, hashed_password))
             # commit changes for insert to go through
             connection.commit()
             cursor.close() # close cursor when done
@@ -825,7 +832,6 @@ def tag_suggestion_made():
     # regarding others
     else:
         #check if user exists in db
-
         query = "SELECT * FROM Person WHERE username = %s"
         cursor.execute(query, (suggested_username))
         # store result of query in variable (if more than one row, use fetchall())
